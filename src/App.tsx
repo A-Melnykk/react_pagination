@@ -3,8 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Pagination } from './components/Pagination';
 import './App.css';
 
-const totalItems = 42;
-const items = Array.from({ length: totalItems }, (_, i) => `Item ${i + 1}`);
+const items = Array.from({ length: 42 }, (_, i) => `Item ${i + 1}`);
 
 export const App: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,13 +18,11 @@ export const App: React.FC = () => {
   const updateParams = (params: { page?: string; perPage?: string }) => {
     const newParams = new URLSearchParams(searchParams);
 
-    if (params.page) {
-      newParams.set('page', params.page);
-    }
-
     if (params.perPage) {
       newParams.set('perPage', params.perPage);
-      newParams.set('page', '1'); // Скидаємо на 1 сторінку при зміні кількості
+      newParams.set('page', '1');
+    } else if (params.page) {
+      newParams.set('page', params.page);
     }
 
     setSearchParams(newParams);

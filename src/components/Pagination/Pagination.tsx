@@ -3,27 +3,19 @@ import React from 'react';
 type Props = {
   total: number;
   perPage: number;
-  currentPage?: number;
+  currentPage: number;
   onPageChange: (page: number) => void;
 };
 
 export const Pagination: React.FC<Props> = ({
   total,
   perPage,
-  currentPage = 1,
+  currentPage,
   onPageChange,
 }) => {
   const totalPages = Math.ceil(total / perPage);
-
-  // Логіка для "items 1 - 5 of 42"
   const from = total === 0 ? 0 : (currentPage - 1) * perPage + 1;
   const to = Math.min(currentPage * perPage, total);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-      onPageChange(newPage);
-    }
-  };
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
@@ -38,13 +30,14 @@ export const Pagination: React.FC<Props> = ({
           className={`pagination-item ${currentPage === 1 ? 'disabled' : ''}`}
         >
           <a
-            data-cy="prevLink"
+            data-cy="prevLink" // <--- ОБОВ'ЯЗКОВО
             className="pagination-link"
             href="#prev"
-            aria-disabled={currentPage === 1}
             onClick={e => {
               e.preventDefault();
-              handlePageChange(currentPage - 1);
+              if (currentPage > 1) {
+                onPageChange(currentPage - 1);
+              }
             }}
           >
             «
@@ -62,7 +55,7 @@ export const Pagination: React.FC<Props> = ({
               href={`#${page}`}
               onClick={e => {
                 e.preventDefault();
-                handlePageChange(page);
+                onPageChange(page);
               }}
             >
               {page}
@@ -77,10 +70,11 @@ export const Pagination: React.FC<Props> = ({
             data-cy="nextLink"
             className="pagination-link"
             href="#next"
-            aria-disabled={currentPage === totalPages}
             onClick={e => {
               e.preventDefault();
-              handlePageChange(currentPage + 1);
+              if (currentPage < totalPages) {
+                onPageChange(currentPage + 1);
+              }
             }}
           >
             »
