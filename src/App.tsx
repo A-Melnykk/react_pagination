@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Pagination } from './components/Pagination';
 import './App.css';
 
@@ -6,12 +7,29 @@ const totalItems = 42;
 const items = Array.from({ length: totalItems }, (_, i) => `Item ${i + 1}`);
 
 export const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const perPage = Number(searchParams.get('perPage')) || 5;
 
   const indexOfLastItem = currentPage * perPage;
   const indexOfFirstItem = indexOfLastItem - perPage;
   const visibleGoods = items.slice(indexOfFirstItem, indexOfLastItem);
+
+  const updateParams = (params: { page?: string; perPage?: string }) => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (params.page) {
+      newParams.set('page', params.page);
+    }
+
+    if (params.perPage) {
+      newParams.set('perPage', params.perPage);
+      newParams.set('page', '1'); // Скидаємо на 1 сторінку при зміні кількості
+    }
+
+    setSearchParams(newParams);
+  };
 
   return (
     <div className="app">
@@ -27,10 +45,7 @@ export const App: React.FC = () => {
               id="per-page-select"
               data-cy="perPageSelector"
               value={perPage}
-              onChange={e => {
-                setPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
+              onChange={e => updateParams({ perPage: e.target.value })}
             >
               <option value="3">3</option>
               <option value="5">5</option>
@@ -53,7 +68,7 @@ export const App: React.FC = () => {
         total={items.length}
         perPage={perPage}
         currentPage={currentPage}
-        onPageChange={setCurrentPage}
+        onPageChange={page => updateParams({ page: page.toString() })}
       />
     </div>
   );
