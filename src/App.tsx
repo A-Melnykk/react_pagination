@@ -42,7 +42,9 @@ export const App: React.FC = () => {
               id="per-page-select"
               data-cy="perPageSelector"
               value={perPage}
-              onChange={e => updateParams({ perPage: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                updateParams({ perPage: e.target.value })
+              }
             >
               <option value="3">3</option>
               <option value="5">5</option>
@@ -65,7 +67,7 @@ export const App: React.FC = () => {
         total={items.length}
         perPage={perPage}
         currentPage={currentPage}
-        onPageChange={page => updateParams({ page: page.toString() })}
+        onPageChange={(page: number) => updateParams({ page: page.toString() })}
       />
     </div>
   );
