@@ -2,36 +2,32 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Pagination } from './components/Pagination';
 import './App.css';
-
 const items = Array.from({ length: 42 }, (_, i) => `Item ${i + 1}`);
 
 export const App: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const currentPage = Number(searchParams.get('page')) || 1;
   const perPage = Number(searchParams.get('perPage')) || 5;
+  const start = (currentPage - 1) * perPage;
+  const visibleGoods = items.slice(start, start + perPage);
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
 
-  const indexOfLastItem = currentPage * perPage;
-  const indexOfFirstItem = indexOfLastItem - perPage;
-  const visibleGoods = items.slice(indexOfFirstItem, indexOfLastItem);
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  };
 
-  const updateParams = (params: { page?: string; perPage?: string }) => {
-    const newParams = new URLSearchParams(searchParams);
+  const handlePerPageChange = (newPerPage: string) => {
+    const params = new URLSearchParams(searchParams);
 
-    if (params.perPage) {
-      newParams.set('perPage', params.perPage);
-      newParams.set('page', '1');
-    } else if (params.page) {
-      newParams.set('page', params.page);
-    }
-
-    setSearchParams(newParams);
+    params.set('perPage', newPerPage);
+    params.set('page', '1');
+    setSearchParams(params);
   };
 
   return (
     <div className="app">
       <h1 className="title">Products Pagination</h1>
-
       <div className="field">
         <label className="label" htmlFor="per-page-select">
           Items per page:
@@ -42,9 +38,7 @@ export const App: React.FC = () => {
               id="per-page-select"
               data-cy="perPageSelector"
               value={perPage}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                updateParams({ perPage: e.target.value })
-              }
+              onChange={e => handlePerPageChange(e.target.value)}
             >
               <option value="3">3</option>
               <option value="5">5</option>
@@ -54,7 +48,6 @@ export const App: React.FC = () => {
           </div>
         </div>
       </div>
-
       <ul className="items-list">
         {visibleGoods.map(item => (
           <li key={item} data-cy="item" className="item">
@@ -62,12 +55,11 @@ export const App: React.FC = () => {
           </li>
         ))}
       </ul>
-
       <Pagination
         total={items.length}
         perPage={perPage}
         currentPage={currentPage}
-        onPageChange={(page: number) => updateParams({ page: page.toString() })}
+        onPageChange={handlePageChange}
       />
     </div>
   );
